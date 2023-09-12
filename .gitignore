@@ -1,0 +1,6 @@
+#VS files
+*.csproj
+
+#Folders
+bin
+obj

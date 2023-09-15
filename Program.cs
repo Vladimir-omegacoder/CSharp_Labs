@@ -44,7 +44,9 @@ namespace CLab1
             StudentCollections studentCollections = new StudentCollections();
             studentCollections.AddDefaults();
 
-            Console.WriteLine(studentCollections.Remove(5));
+            //Console.WriteLine(studentCollections.Remove(5));
+
+            //Console.WriteLine(studentCollections[5]);
         }
     }
 }

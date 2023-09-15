@@ -81,6 +81,15 @@ namespace CLab1
         }
 
 
+
+        public Student this[int index]
+        {
+            get => MCStudent[index];
+            set => MCStudent[index] = value;
+        }
+
+
+
         public override string ToString()
         {
             string s = "\n";

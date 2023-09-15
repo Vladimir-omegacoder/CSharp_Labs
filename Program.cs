@@ -38,8 +38,13 @@ namespace CLab1
 
         static void Main(string[] args)
         {
-            Student student = new Student();
-            Console.WriteLine(student.ToString());
+            //Student student = new Student();
+            //Console.WriteLine(student.ToString());
+
+            StudentCollections studentCollections = new StudentCollections();
+            studentCollections.AddDefaults();
+
+            Console.WriteLine(studentCollections.Remove(5));
         }
     }
 }

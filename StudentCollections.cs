@@ -17,6 +17,8 @@ namespace CLab1
             set { CStudent = value; }
         }
 
+        public string MNameCollection { get; set; }
+
 
 
         public StudentCollections()
@@ -62,6 +64,21 @@ namespace CLab1
             }
         }
 
+
+
+        public bool Remove(int j)
+        {
+
+            try
+            {
+                MCStudent.RemoveAt(j);
+                return true;
+            }
+
+            catch (ArgumentOutOfRangeException)
+            { return false; }
+
+        }
 
 
         public override string ToString()

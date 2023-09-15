@@ -1,6 +1,2 @@
-#VS files
-*.csproj
-
-#Folders
-bin
 obj
+S1_CLab1.csproj

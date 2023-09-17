@@ -36,7 +36,7 @@ namespace CLab1
 
         public override string ToString()
         {
-            return $"Collection name - {NameCollection} \nType of change - {TypeChange} \nChange object - {NameStudChange.ToShortString()}";
+            return $"Collection name - {NameCollection} \nType of change - {TypeChange} \nChange object - {NameStudChange.ToShortString()}\n";
         }
     }
 }

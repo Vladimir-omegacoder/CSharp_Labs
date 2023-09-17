@@ -23,6 +23,14 @@ namespace CLab1
 
         public StudentCollections()
         {
+            MNameCollection = string.Empty;
+            CStudent = new List<Student>();
+        }
+
+
+        public StudentCollections(string name)
+        {
+            MNameCollection = name;
             CStudent = new List<Student>();
         }
 
@@ -49,10 +57,11 @@ namespace CLab1
 
         public void AddDefaults()
         {
-            int count = 5;
+            int count = 2;
             for (int i = 0; i < count; i++)
             {
                 CStudent.Add(new Student());
+                StudentsCountChanged(this, new StudentListHandlerEventArgs(this.MNameCollection, "Add element", this.MCStudent.Last()));
             }
         }
 
@@ -61,9 +70,9 @@ namespace CLab1
             foreach (var student in parameters)
             {
                 CStudent.Add(student);
+                StudentsCountChanged(this, new StudentListHandlerEventArgs(this.MNameCollection, "Add element", this.MCStudent.Last()));
             }
         }
-
 
 
         public bool Remove(int j)
@@ -71,7 +80,9 @@ namespace CLab1
 
             try
             {
+                Student student = CStudent[j];
                 MCStudent.RemoveAt(j);
+                StudentsCountChanged(this, new StudentListHandlerEventArgs(this.MNameCollection, "Delete element", student));
                 return true;
             }
 
@@ -85,7 +96,12 @@ namespace CLab1
         public Student this[int index]
         {
             get => MCStudent[index];
-            set => MCStudent[index] = value;
+
+            set
+            {
+                MCStudent[index] = value;
+                StudentsCountChanged(this, new StudentListHandlerEventArgs(this.MNameCollection, "Element changed", MCStudent[index]));
+            }
         }
 
 
@@ -138,5 +154,10 @@ namespace CLab1
 
 
         public delegate void StudentListHandler(object source, StudentListHandlerEventArgs args);
+
+
+
+        public event StudentListHandler StudentsCountChanged;
+        public event StudentListHandler StudentReferenceChanged;
     }
 }

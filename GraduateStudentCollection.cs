@@ -43,6 +43,8 @@ namespace Lab4
 
         public void AddDefaults()
         {
+            int starting_index = _students.Count;
+
             int count = 10;
             _students.Capacity += count;
 
@@ -52,15 +54,17 @@ namespace Lab4
             }
 
             GraduateStudentAdded?.Invoke(this, new GraduateStudentListHandlerEventArgs(
-                CollectionName, "10 default objects have been added", _students.Count));
+                CollectionName, "10 default objects have been added", starting_index));
         }
 
         public void AddGraduateStudents(params GraduateStudent[] students)
         {
+            int starting_index = _students.Count;
+
             _students.AddRange(students);
 
             GraduateStudentAdded?.Invoke(this, new GraduateStudentListHandlerEventArgs(
-                CollectionName, $"{students.Length} object(s) has(have) been added", _students.Count));
+                CollectionName, $"{students.Length} object(s) has(have) been added", starting_index));
         }
 
         public void InsertAt(int j, GraduateStudent gs)
@@ -69,7 +73,7 @@ namespace Lab4
             {
                 _students.Add(gs);
                 GraduateStudentAdded?.Invoke(this, new GraduateStudentListHandlerEventArgs(
-                CollectionName, $"Object has been added", _students.Count));
+                CollectionName, $"Object has been added", _students.Count - 1));
             }
             else
             {

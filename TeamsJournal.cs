@@ -14,15 +14,15 @@ namespace Lab1
 
 
 
-        void GraduateStudentCollectionExpand(object sender, GraduateStudentListHandlerEventArgs e)
-        {
+        public void GraduateStudentCollectionExpanded(object sender, GraduateStudentListHandlerEventArgs e)
+        { 
             _changesRegister.Add(new TeamsJournalEntry(e.CollectionNameInfo, e.ChangesInfo, e.IndexInfo));
         }
 
 
 
-        TeamsJournal()
-        {
+        public TeamsJournal()
+        { 
             _changesRegister = new List<TeamsJournalEntry>();
         }
 

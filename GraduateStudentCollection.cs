@@ -23,11 +23,20 @@ namespace Lab4
 
 
 
+        public delegate void GraduateStudentListHandler(object source, GraduateStudentListHandlerEventArgs args);
+
+        public event GraduateStudentListHandler? GraduateStudentAdded;
+
+        public event GraduateStudentListHandler? GraduateStudentInserted;
+
+
 
         public GraduateStudentCollection()
         { 
             _students = new List<GraduateStudent>();
             CollectionName = "";
+            GraduateStudentAdded = null;
+            GraduateStudentInserted = null;
         }
 
 
@@ -41,22 +50,32 @@ namespace Lab4
             {
                 _students.Add(new GraduateStudent());
             }
+
+            GraduateStudentAdded?.Invoke(this, new GraduateStudentListHandlerEventArgs(
+                CollectionName, "10 default objects have been added", _students.Count));
         }
 
         public void AddGraduateStudents(params GraduateStudent[] students)
         {
             _students.AddRange(students);
+
+            GraduateStudentAdded?.Invoke(this, new GraduateStudentListHandlerEventArgs(
+                CollectionName, $"{students.Length} object(s) has(have) been added", _students.Count));
         }
 
-        public void InsertAt(int j, GraduateStudent gs) 
+        public void InsertAt(int j, GraduateStudent gs)
         {
             if(j < 0 || j > _students.Count - 1) 
             {
-                _students.Add(gs);  
+                _students.Add(gs);
+                GraduateStudentAdded?.Invoke(this, new GraduateStudentListHandlerEventArgs(
+                CollectionName, $"Object has been added", _students.Count));
             }
             else
             {
                 _students.Insert(j, gs);
+                GraduateStudentInserted?.Invoke(this, new GraduateStudentListHandlerEventArgs(
+                CollectionName, $"Object has been inserted", j));
             }
         }
 
@@ -101,12 +120,7 @@ namespace Lab4
 
 
 
-        void GraduateStudentListHandler(object source, GraduateStudentListHandlerEventArgs args)
-        {
 
-
-
-        }
 
     }
 

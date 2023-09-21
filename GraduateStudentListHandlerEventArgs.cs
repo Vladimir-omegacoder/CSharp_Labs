@@ -18,9 +18,9 @@ namespace Lab1
 
 
 
-        //Index < 0, means that no element has changed by the event
         //Provide null, if you want to miss some info
-        public GraduateStudentListHandlerEventArgs(string? collectionName = null, string? changes = null, int? index = -1)
+        public GraduateStudentListHandlerEventArgs
+            (string? collectionName = null, string? changes = null, int? index = null)
         {
             CollectionNameInfo = collectionName;
             ChangesInfo = changes;

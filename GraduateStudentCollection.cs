@@ -25,9 +25,9 @@ namespace Lab4
 
         public delegate void GraduateStudentListHandler(object source, GraduateStudentListHandlerEventArgs args);
 
-        public event GraduateStudentListHandler? GraduateStudentAdded;
+        public event GraduateStudentListHandler?    GraduateStudentAdded;
 
-        public event GraduateStudentListHandler? GraduateStudentInserted;
+        public event GraduateStudentListHandler?    GraduateStudentInserted;
 
 
 

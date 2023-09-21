@@ -11,25 +11,24 @@ namespace Lab4
     internal class GraduateStudentCollection
     {
 
-        private List<GraduateStudent> _students;
+        private List<GraduateStudent>   _students;
+
+        public string                   CollectionName { get; set; }
+
+        public GraduateStudent          this[int index]
+        {
+            get { return _students[index]; }
+            set { _students[index] = value; }
+        }
+
 
 
 
         public GraduateStudentCollection()
         { 
             _students = new List<GraduateStudent>();
+            CollectionName = "";
         }
-
-
-
-        void GraduateStudentListHandler(object source, GraduateStudentListHandlerEventArgs args) 
-        {
-            
-
-
-        }
-
-
 
 
 
@@ -47,6 +46,18 @@ namespace Lab4
         public void AddGraduateStudents(params GraduateStudent[] students)
         {
             _students.AddRange(students);
+        }
+
+        public void InsertAt(int j, GraduateStudent gs) 
+        {
+            if(j < 0 || j > _students.Count - 1) 
+            {
+                _students.Add(gs);  
+            }
+            else
+            {
+                _students.Insert(j, gs);
+            }
         }
 
         public override string ToString()
@@ -89,6 +100,13 @@ namespace Lab4
         }
 
 
+
+        void GraduateStudentListHandler(object source, GraduateStudentListHandlerEventArgs args)
+        {
+
+
+
+        }
 
     }
 

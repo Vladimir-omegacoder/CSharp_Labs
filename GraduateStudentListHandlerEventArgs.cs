@@ -10,11 +10,11 @@ namespace Lab1
     internal class GraduateStudentListHandlerEventArgs : EventArgs
     {
 
-        public string?   CollectionNameInfo  {  get; private set; }
+        public string?   CollectionNameInfo  { get; private set; }
 
         public string?   ChangesInfo         { get; private set; }
 
-        public int?      IndexInfo           {  get; private set; }
+        public int?      IndexInfo           { get; private set; }
 
 
 

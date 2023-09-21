@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Lab1;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,6 +19,17 @@ namespace Lab4
         { 
             _students = new List<GraduateStudent>();
         }
+
+
+
+        void GraduateStudentListHandler(object source, GraduateStudentListHandlerEventArgs args) 
+        {
+            
+
+
+        }
+
+
 
 
 
@@ -75,6 +87,8 @@ namespace Lab4
         {
             _students.Sort(new Person());
         }
+
+
 
     }
 

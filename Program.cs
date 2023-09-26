@@ -35,23 +35,23 @@ namespace CLab1
             }
         }
 
-        public static void Vivod(object sender, StudentListHandlerEventArgs e)
-        {
-            if(sender is StudentCollections)
-            {
-               Console.WriteLine(e.ToString());
-            }
-        }
 
         static void Main(string[] args)
         {
             Student student = new Student(new Person("Name", "Surname", new DateTime (2005, 05, 12)), Education.Specialist, 3);
             //Console.WriteLine(student.ToString());
 
+
+            //studentCollections.StudentsCountChanged += Vivod;
+            //studentCollections.AddDefaults();
+
             StudentCollections studentCollections = new StudentCollections("Spisok");
-            studentCollections.StudentsCountChanged += Vivod;
-            studentCollections.AddDefaults();
-            studentCollections.AddStudent(student);
+
+            studentCollections.AddStudent(new Student(new Person("Igor", "Zomich", new DateTime(2002, 03, 16)), Education.SecondEducation, 3));
+            studentCollections.AddStudent(new Student(new Person("Vasyl", "Gordienko", new DateTime(2001, 07, 07)), Education.Specialist, 4));
+            studentCollections.AddStudent(new Student(new Person("Gennady", "Komarov", new DateTime(2004, 12, 05)), Education.Bachelor, 1));
+
+
             studentCollections.Remove(2);
             studentCollections[0] = student;
 

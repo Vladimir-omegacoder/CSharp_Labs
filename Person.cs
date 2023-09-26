@@ -40,7 +40,9 @@ namespace CLab1
             Surname = string.Empty;
             DateofBirth = new DateTime();
         }
+#pragma warning disable CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Возможно, стоит объявить поле как допускающее значения NULL.
         public Person(string name, string surname, DateTime dateofbirth)
+#pragma warning restore CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Возможно, стоит объявить поле как допускающее значения NULL.
         {
             MName = name;
             MSurname = surname;

@@ -61,7 +61,8 @@ namespace CLab1
             for (int i = 0; i < count; i++)
             {
                 CStudent.Add(new Student());
-                StudentsCountChanged(this, new StudentListHandlerEventArgs(this.MNameCollection, "Add element", this.MCStudent.Last()));
+
+                StudentsCountChanged?.Invoke(this, new StudentListHandlerEventArgs(this.MNameCollection, "Add element", this.MCStudent.Last()));
             }
         }
 
@@ -70,7 +71,9 @@ namespace CLab1
             foreach (var student in parameters)
             {
                 CStudent.Add(student);
-                StudentsCountChanged(this, new StudentListHandlerEventArgs(this.MNameCollection, "Add element", this.MCStudent.Last()));
+
+                StudentsCountChanged?.Invoke(this, new StudentListHandlerEventArgs(this.MNameCollection, "Add element", this.MCStudent.Last()));
+
             }
         }
 
@@ -82,7 +85,9 @@ namespace CLab1
             {
                 Student student = CStudent[j];
                 MCStudent.RemoveAt(j);
-                StudentsCountChanged(this, new StudentListHandlerEventArgs(this.MNameCollection, "Delete element", student));
+
+                StudentsCountChanged?.Invoke(this, new StudentListHandlerEventArgs(this.MNameCollection, "Delete element", student));
+
                 return true;
             }
 
@@ -100,7 +105,8 @@ namespace CLab1
             set
             {
                 MCStudent[index] = value;
-                StudentsCountChanged(this, new StudentListHandlerEventArgs(this.MNameCollection, "Element changed", MCStudent[index]));
+
+                StudentReferenceChanged?.Invoke(this, new StudentListHandlerEventArgs(this.MNameCollection, "Element changed", MCStudent[index]));
             }
         }
 
@@ -157,7 +163,7 @@ namespace CLab1
 
 
 
-        public event StudentListHandler StudentsCountChanged;
-        public event StudentListHandler StudentReferenceChanged;
+        public event StudentListHandler? StudentsCountChanged;
+        public event StudentListHandler? StudentReferenceChanged;
     }
 }

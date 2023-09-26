@@ -29,6 +29,7 @@ namespace S1_CLab1
             for (int i = 0; i < JournalChange.Count(); i++)
             {
                 s += JournalChange[i].ToString();
+                s += "\n";
             }
             return s;
         }

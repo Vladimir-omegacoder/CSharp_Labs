@@ -1,131 +1,111 @@
 ﻿using Lab1;
+using Lab4;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lab4
+namespace CSharp_Lab2
 {
-
-    internal class GraduateStudentCollection
+    internal class GraduateStudentCollection<TKey> where TKey : IEquatable<TKey>
     {
 
-        private List<GraduateStudent>   _students;
+#pragma warning disable CS0693
+        public delegate TKey KeySelector<TKey>(GraduateStudent gs);
+#pragma warning restore CS0693
 
-        public string                   CollectionName { get; set; }
 
-        public GraduateStudent          this[int index]
+
+        private Dictionary<TKey, GraduateStudent> _students;
+
+        public string CollectionName { get; set; }
+
+        private KeySelector<TKey> keySelector;
+
+        //event GraduateStudentsChangedHandler<TKey> GraduateStudentsChanged; TODO
+
+
+
+        public GraduateStudentCollection(KeySelector<TKey> keySelector)
         {
-            get { return _students[index]; }
-            set { _students[index] = value; }
-        }
-
-
-
-        public delegate void GraduateStudentListHandler(object source, GraduateStudentListHandlerEventArgs args);
-
-        public event GraduateStudentListHandler?    GraduateStudentAdded;
-
-        public event GraduateStudentListHandler?    GraduateStudentInserted;
-
-
-
-        public GraduateStudentCollection()
-        { 
-            _students = new List<GraduateStudent>();
-            CollectionName = "";
-            GraduateStudentAdded = null;
-            GraduateStudentInserted = null;
+            CollectionName = nameof(CollectionName);
+            this.keySelector = keySelector;
+            _students = new Dictionary<TKey, GraduateStudent>();
         }
 
 
 
         public void AddDefaults()
         {
-            int starting_index = _students.Count;
 
             int count = 10;
-            _students.Capacity += count;
 
             for (int i = 0; i < count; ++i)
             {
-                _students.Add(new GraduateStudent());
+                GraduateStudent gs = new GraduateStudent($"Name_{i + 1}", $"Surname_{i + 1}",
+                    new DateTime(), new Person(), "", "", FormOfStudy.FullTime, 0);
+                _students.Add(keySelector(gs), gs);
             }
 
-            GraduateStudentAdded?.Invoke(this, new GraduateStudentListHandlerEventArgs(
-                CollectionName, "10 default objects have been added", starting_index));
         }
 
-        public void AddGraduateStudents(params GraduateStudent[] students)
+        public void AddGraduateStudent(params GraduateStudent[] students)
         {
-            int starting_index = _students.Count;
-
-            _students.AddRange(students);
-
-            GraduateStudentAdded?.Invoke(this, new GraduateStudentListHandlerEventArgs(
-                CollectionName, $"{students.Length} object(s) has(have) been added", starting_index));
-        }
-
-        public void InsertAt(int j, GraduateStudent gs)
-        {
-            if(j < 0 || j > _students.Count - 1) 
+            foreach (var gs in students)
             {
-                _students.Add(gs);
-                GraduateStudentAdded?.Invoke(this, new GraduateStudentListHandlerEventArgs(
-                CollectionName, $"Object has been added", _students.Count - 1));
-            }
-            else
-            {
-                _students.Insert(j, gs);
-                GraduateStudentInserted?.Invoke(this, new GraduateStudentListHandlerEventArgs(
-                CollectionName, $"Object has been inserted", j));
+                _students.Add(keySelector(gs), gs);
             }
         }
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            return string.Concat("\n\n", _students.Select(pair => pair.ToString()));
+        }
 
-            foreach (GraduateStudent student in _students) 
+        public string ToShortString() 
+        {
+            return string.Concat("\n\n", _students.Select(pair => '[' + pair.Key.ToString() + ", " + pair.Value.ToShortString() + ']'));
+        }
+
+        public bool Remove(GraduateStudent rt)
+        {
+            return _students.Remove(keySelector(rt));
+        }
+
+        public bool Replace(GraduateStudent gsOld, GraduateStudent gsNew)
+        {
+
+            TKey key = keySelector(gsOld);
+
+            if(_students.ContainsKey(key))
             {
-                sb.Append(student.ToString() + "-----------------------------------\n");
+                _students[key] = gsNew;
+                return true;
+            }
+            else
+            {
+                return false;
             }
 
-            return sb.ToString();
         }
 
-        public string ToShortString()
+        public int MaxYearOfStudy
         {
-            StringBuilder sb = new StringBuilder();
-
-            foreach (GraduateStudent student in _students)
-            {
-                sb.Append(student.ToShortString() + "-----------------------------------\n");
-            }
-
-            return sb.ToString();
+            get { return _students.Count == 0? -1 : _students.Select(gs => gs.Value.YearOfStudy).Max(); }
         }
 
-        public void SortBySurname()
+        IEnumerable<KeyValuePair<TKey, GraduateStudent>> TuitionForm(FormOfStudy value)
         {
-            _students.Sort();
+            return _students.Where(pair => pair.Value.FormOfstudy == value);
         }
 
-        public void SortByYearOfStudy()
+        IEnumerable<IGrouping<FormOfStudy, KeyValuePair<TKey, GraduateStudent>>> GroupByFormOfStudy
         {
-            _students.Sort(new GraduateStudentComparer());
+            get { return _students.GroupBy(pair => pair.Value.FormOfstudy); }
         }
-
-        public void SortByBirthDate()
-        {
-            _students.Sort(new Person());
-        }
-
-
-
-
 
     }
-
 }

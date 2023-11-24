@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 namespace Lab4
 {
 
-    internal class GraduateStudent : Person, IDateAndCopy
+    internal class GraduateStudent : Person, IDateAndCopy, INotifyPropertyChanged
     {
 
         private string             _position;
@@ -24,6 +25,19 @@ namespace Lab4
 
         private List<Notes>        _notes;
 
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+
+
+        public enum Revision
+        {
+
+            Remove,
+            Replace,
+            Property
+
+        }
+
 
 
         public Person           Supervisor
@@ -35,13 +49,13 @@ namespace Lab4
         public string           Specialization
         { 
             get { return _specialization; }  
-            set { _specialization = value; } 
+            set { _specialization = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Specialization))); } 
         }
 
         public FormOfStudy      FormOfstudy
         { 
             get { return _formOfStudy; }     
-            set { _formOfStudy = value; } 
+            set { _formOfStudy = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FormOfstudy))); } 
         }
 
         public int              YearOfStudy

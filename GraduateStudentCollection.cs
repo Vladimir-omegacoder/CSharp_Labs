@@ -25,6 +25,10 @@ namespace CSharp_Lab2
 
         private KeySelector<TKey> keySelector;
 
+#pragma warning disable CS0693
+        public delegate void GraduateStudentsChangedHandler<TKey>(object source, GraduateStudentsChangedEventArgs<TKey> args);
+#pragma warning restore CS0693
+
         //event GraduateStudentsChangedHandler<TKey> GraduateStudentsChanged; TODO
 
 

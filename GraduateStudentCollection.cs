@@ -29,7 +29,7 @@ namespace CSharp_Lab2
         public delegate void GraduateStudentsChangedHandler<TKey>(object source, GraduateStudentsChangedEventArgs<TKey> args);
 #pragma warning restore CS0693
 
-        //event GraduateStudentsChangedHandler<TKey> GraduateStudentsChanged; TODO
+        public event GraduateStudentsChangedHandler<TKey>? GraduateStudentsChanged;
 
 
 
@@ -42,6 +42,17 @@ namespace CSharp_Lab2
 
 
 
+        private void GsPropertyChanged(object source, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+
+#pragma warning disable CS8604
+            GraduateStudentsChanged?.Invoke(source,
+                new GraduateStudentsChangedEventArgs<TKey>(CollectionName, GraduateStudent.Revision.Property,
+                e.PropertyName, ((GraduateStudent)source).YearOfStudy));
+#pragma warning restore CS8604
+
+        }
+
         public void AddDefaults()
         {
 
@@ -50,7 +61,10 @@ namespace CSharp_Lab2
             for (int i = 0; i < count; ++i)
             {
                 GraduateStudent gs = new GraduateStudent($"Name_{i + 1}", $"Surname_{i + 1}",
-                    new DateTime(), new Person(), "", "", FormOfStudy.FullTime, 0);
+                    new DateTime(), new Person(), "", "", FormOfStudy.FullTime, 1);
+#pragma warning disable CS8622
+                gs.PropertyChanged += GsPropertyChanged;
+#pragma warning restore CS8622 
                 _students.Add(keySelector(gs), gs);
             }
 
@@ -60,23 +74,53 @@ namespace CSharp_Lab2
         {
             foreach (var gs in students)
             {
+#pragma warning disable CS8622
+                gs.PropertyChanged += GsPropertyChanged;
+#pragma warning restore CS8622
                 _students.Add(keySelector(gs), gs);
             }
         }
 
         public override string ToString()
         {
-            return string.Concat("\n\n", _students.Select(pair => pair.ToString()));
+
+            StringBuilder sb = new StringBuilder();
+
+            foreach (var pair in _students)
+            {
+                sb.Append(pair.ToString() + "\n-----------------------------------\n");
+            }
+
+            return sb.ToString();
+
         }
 
         public string ToShortString() 
         {
-            return string.Concat("\n\n", _students.Select(pair => '[' + pair.Key.ToString() + ", " + pair.Value.ToShortString() + ']'));
+
+            StringBuilder sb = new StringBuilder();
+
+            foreach (var pair in _students)
+            {
+                sb.Append('[' + pair.Key.ToString() + ", " + pair.Value.ToShortString() + ']' + "\n-----------------------------------\n");
+            }
+
+            return sb.ToString();
+
         }
 
         public bool Remove(GraduateStudent rt)
         {
-            return _students.Remove(keySelector(rt));
+            bool result = _students.Remove(keySelector(rt));
+            if (result)
+            {
+#pragma warning disable CS8622
+                rt.PropertyChanged -= GsPropertyChanged;
+#pragma warning restore CS8622
+                GraduateStudentsChanged?.Invoke(this, new GraduateStudentsChangedEventArgs<TKey>(CollectionName,
+                    GraduateStudent.Revision.Remove, "", rt.YearOfStudy));
+            }
+            return result;
         }
 
         public bool Replace(GraduateStudent gsOld, GraduateStudent gsNew)
@@ -87,6 +131,13 @@ namespace CSharp_Lab2
             if(_students.ContainsKey(key))
             {
                 _students[key] = gsNew;
+
+#pragma warning disable CS8622
+                gsOld.PropertyChanged -= GsPropertyChanged;
+#pragma warning restore CS8622
+
+                GraduateStudentsChanged?.Invoke(this, new GraduateStudentsChangedEventArgs<TKey>(CollectionName,
+                GraduateStudent.Revision.Replace, "", gsNew.YearOfStudy));
                 return true;
             }
             else
@@ -101,12 +152,12 @@ namespace CSharp_Lab2
             get { return _students.Count == 0? -1 : _students.Select(gs => gs.Value.YearOfStudy).Max(); }
         }
 
-        IEnumerable<KeyValuePair<TKey, GraduateStudent>> TuitionForm(FormOfStudy value)
+        public IEnumerable<KeyValuePair<TKey, GraduateStudent>> TuitionForm(FormOfStudy value)
         {
             return _students.Where(pair => pair.Value.FormOfstudy == value);
         }
 
-        IEnumerable<IGrouping<FormOfStudy, KeyValuePair<TKey, GraduateStudent>>> GroupByFormOfStudy
+        public IEnumerable<IGrouping<FormOfStudy, KeyValuePair<TKey, GraduateStudent>>> GroupByFormOfStudy
         {
             get { return _students.GroupBy(pair => pair.Value.FormOfstudy); }
         }

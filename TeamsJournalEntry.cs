@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Lab4;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,30 +10,32 @@ namespace Lab1
     internal class TeamsJournalEntry
     {
 
-        public string?  CollectionName  { get; private set; }
+        public string CollectionName { get; set; }
 
-        public string?  Changes         { get; private set; }
+        public GraduateStudent.Revision Revision { get; set; }
 
-        public int?     Index           { get; private set; }
+        public string PropertyName { get; set; }
+
+        public int YearOfStudy { get; set; }
 
 
 
-        //Provide null, if you want to miss some info
-        public TeamsJournalEntry
-            (string? collectionName = null, string? changes = null, int? index = null)
+        public TeamsJournalEntry(string collectionName, GraduateStudent.Revision revision, string propertyName, int yearOfStudy)
         {
             CollectionName = collectionName;
-            Changes = changes;
-            Index = index;
+            Revision = revision;
+            PropertyName = propertyName;
+            YearOfStudy = yearOfStudy;
         }
 
 
 
         public override string ToString()
         {
-            return "Collection name: " + (CollectionName ?? "N/A") + "; " +
-                   "Changes: " + (Changes ?? "N/A") + "; " +
-                   "Index: " + (Index?.ToString() ?? "N/A");
+            return nameof(CollectionName) + ": " + CollectionName + "; " +
+                nameof(Revision) + ": " + Revision + "; " +
+                nameof(PropertyName) + ": " + PropertyName + "; " +
+                nameof(YearOfStudy) + ": " + YearOfStudy;
         }
 
     }

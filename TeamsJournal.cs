@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CSharp_Lab2;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -14,13 +15,6 @@ namespace Lab1
 
 
 
-        public void GraduateStudentCollectionExpanded(object sender, GraduateStudentListHandlerEventArgs e)
-        { 
-            _changesRegister.Add(new TeamsJournalEntry(e.CollectionNameInfo, e.ChangesInfo, e.IndexInfo));
-        }
-
-
-
         public TeamsJournal()
         { 
             _changesRegister = new List<TeamsJournalEntry>();
@@ -28,16 +22,23 @@ namespace Lab1
 
 
 
+        public void GraduateStudentsChanged<TKey>(object sender, GraduateStudentsChangedEventArgs<TKey> e)
+        {
+            _changesRegister.Add(new TeamsJournalEntry(e.CollectionName, e.Revision, e.PropertyName, e.YearOfStudy));
+        }
+
         public override string ToString()
         {
+
             StringBuilder sb = new StringBuilder();
 
-            foreach (var entry in _changesRegister)
+            foreach (var change in _changesRegister)
             {
-                sb.Append(entry.ToString() + '\n');
+                sb.Append(change.ToString() + "\n-----------------------------------\n");
             }
 
             return sb.ToString();
+
         }
 
     }

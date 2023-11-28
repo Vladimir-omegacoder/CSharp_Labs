@@ -1,23 +1,33 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace CLab1
+
+
+namespace CLab2
 {
-    internal class Student : Person, IDateAndCopy
+    internal class Student : Person, IDateAndCopy, System.ComponentModel.INotifyPropertyChanged
     {
+
+        //Плде должности
         private Education education;
         public Education Meducation
         {
             get { return education; }
-            set { education = value; }
+            set 
+            { 
+                education = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Meducation)));
+            }
         }
 
 
+        //Поле группы
         private int group;
         public int Mgroup
         {
@@ -29,10 +39,13 @@ namespace CLab1
                     throw new ArgumentOutOfRangeException("Error. Group number must be >1 and <100");
                 }
                 group = value;
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Mgroup)));
             }
         }
 
 
+        //Списое экзаменов
         private List<Exam> Exams;
         public List<Exam> MExam
         {
@@ -41,12 +54,23 @@ namespace CLab1
         }
 
 
+        //Список тестов
         private List<Test> Tests;
         public List<Test> MTest
         {
             get { return Tests; }
             set { Tests = value; }
         }
+
+
+
+
+
+        /////////////////////////////////////////////
+        public event PropertyChangedEventHandler? PropertyChanged;
+        /////////////////////////////////////////////
+
+
 
 
         public Student(Person pers, Education education, int group) : base(pers.MName, pers.MSurname,
@@ -101,6 +125,7 @@ namespace CLab1
 
 
 
+        //Метод добавления экзаменоа
         public void AddExams(params Exam[] parameters)
         {
             foreach (var exam in parameters)
@@ -109,6 +134,9 @@ namespace CLab1
             }
         }
 
+
+
+        //Метод добавления тестов
         public void AddTests(params Test[] parameters)
         {
             foreach (var test in parameters)
@@ -117,6 +145,9 @@ namespace CLab1
             }
         }
 
+
+
+        //Вычесление среднего балла
         public double GPA
         {
             get
@@ -129,6 +160,14 @@ namespace CLab1
                 return gpa / Exams.Count;
             }
         }
+
+
+
+
+
+
+
+
 
 
 

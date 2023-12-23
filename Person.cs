@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace Lab4
 {
 
+    [Serializable]
     internal class Person : IDateAndCopy, IComparable, IComparer<Person>
     {
 

@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace Lab4
 {
 
+    [Serializable]
     internal class GraduateStudent : Person, IDateAndCopy
     {
 
@@ -147,6 +153,96 @@ namespace Lab4
 
 
 
+        public override GraduateStudent DeepCopy()
+        {
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            using MemoryStream memoryStream = new MemoryStream();
+            binaryFormatter.Serialize(memoryStream, this);
+            return (GraduateStudent)binaryFormatter.Deserialize(memoryStream);
+        }
+
+        public bool Save(string filename)
+        {
+
+            XmlSerializer serializer = new XmlSerializer(typeof(GraduateStudent));
+            FileStream? fstream = null;
+
+            try
+            {
+                fstream = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.None);
+                serializer.Serialize(fstream, this);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally 
+            { 
+                fstream?.Close();
+            }
+
+            return false;
+
+        }
+
+        public bool Load(string filename)
+        {
+
+            XmlSerializer serializer = new XmlSerializer(typeof(GraduateStudent));
+            FileStream? fstream = null;
+
+            try
+            {
+
+                fstream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.None);
+                GraduateStudent? temp = (GraduateStudent?)serializer.Deserialize(fstream);
+
+                if (temp == null)
+                {
+                    throw new XmlException("Couldn't serialize the object\n");
+                }
+
+                Name = temp.Name;
+                Surname = temp.Surname;
+                BirthDate = temp.BirthDate;
+                Supervisor = temp.Supervisor;
+                Position = temp.Position;
+                Specialization = temp.Specialization;
+                FormOfstudy = temp.FormOfstudy;
+                YearOfStudy = temp.YearOfStudy;
+                Articles = temp.Articles;
+                NotesList = temp.NotesList;
+
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            { 
+                fstream?.Close();
+            }
+
+            return false;
+
+        }
+
+
+        public static bool Save(string filename, GraduateStudent student)
+        {
+            return student.Save(filename);
+        }
+
+        public static bool Load(string filename, GraduateStudent student)
+        {
+            return student.Load(filename);
+        }
+
+
+
         public string FOS_ToString(FormOfStudy form)
         {
             switch (form)
@@ -203,20 +299,6 @@ namespace Lab4
             string notes_info =             $"Notes count: {NotesList.Count}\n";
 
             return graduate_info + supervisor_info + speciality_info + form_of_study_info + year_of_study_info + articles_info + notes_info;
-        }
-
-        public override object DeepCopy()
-        {
-#pragma warning disable CS8604 
-            GraduateStudent copy = new GraduateStudent(Name, Surname, BirthDate, (Person)Supervisor.DeepCopy(),
-                Position.Clone().ToString(),
-                Specialization.Clone().ToString(), FormOfstudy, YearOfStudy);
-#pragma warning restore CS8604 
-
-            copy.Articles =  Articles.ConvertAll(article => new Article(article.Title, article.PublPlace, article.PublDate));
-            copy.NotesList = NotesList.ConvertAll(note => new Notes(note.ThesesName, note.ConferenceName, note.PublicationDate));
-
-            return copy;
         }
 
         public IEnumerable<Article> GetLastYearsArtciles(int years)

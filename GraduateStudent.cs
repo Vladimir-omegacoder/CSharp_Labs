@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization.Formatters.Soap;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Serialization;
+
+
 
 namespace Lab4
 {
@@ -155,22 +155,23 @@ namespace Lab4
 
         public override GraduateStudent DeepCopy()
         {
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            SoapFormatter soapFormatter = new SoapFormatter();
             using MemoryStream memoryStream = new MemoryStream();
-            binaryFormatter.Serialize(memoryStream, this);
-            return (GraduateStudent)binaryFormatter.Deserialize(memoryStream);
+            soapFormatter.Serialize(memoryStream, this);
+            memoryStream.Position = 0;
+            return (GraduateStudent)soapFormatter.Deserialize(memoryStream);
         }
 
         public bool Save(string filename)
         {
 
-            XmlSerializer serializer = new XmlSerializer(typeof(GraduateStudent));
+            SoapFormatter soapFormatter = new SoapFormatter();
             FileStream? fstream = null;
 
             try
             {
                 fstream = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.None);
-                serializer.Serialize(fstream, this);
+                soapFormatter.Serialize(fstream, this);
                 return true;
             }
             catch (Exception ex)
@@ -189,18 +190,18 @@ namespace Lab4
         public bool Load(string filename)
         {
 
-            XmlSerializer serializer = new XmlSerializer(typeof(GraduateStudent));
+            SoapFormatter soapFormatter = new SoapFormatter();
             FileStream? fstream = null;
 
             try
             {
 
                 fstream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.None);
-                GraduateStudent? temp = (GraduateStudent?)serializer.Deserialize(fstream);
+                GraduateStudent? temp = (GraduateStudent?)soapFormatter.Deserialize(fstream);
 
                 if (temp == null)
                 {
-                    throw new XmlException("Couldn't serialize the object\n");
+                    return false;
                 }
 
                 Name = temp.Name;
@@ -231,6 +232,7 @@ namespace Lab4
         }
 
 
+
         public static bool Save(string filename, GraduateStudent student)
         {
             return student.Save(filename);
@@ -239,6 +241,39 @@ namespace Lab4
         public static bool Load(string filename, GraduateStudent student)
         {
             return student.Load(filename);
+        }
+
+
+
+        public bool AddFromConsole()
+        {
+
+            Console.WriteLine("Enter article attributes: *Ttile*, *Publishing place*, *Publishing time*.\n" +
+                "Use \',\' as delimeter.");
+
+            string[]? input = Console.ReadLine()?.Split(",");
+            if (input == null || input.Length < 0)
+            {
+                Console.WriteLine("Wrong input\n");
+                return false;
+            }
+
+            Article article = new Article();
+            article.Title = input[0];
+            article.PublPlace = input[1];
+            DateTime temp;
+            if (!DateTime.TryParseExact(input[2], "d", System.Globalization.CultureInfo.CurrentUICulture,
+                System.Globalization.DateTimeStyles.None, out temp))
+            {
+                Console.WriteLine("Wrong input\n");
+                return false;
+            }
+            article.PublDate = temp;
+
+            Articles.Add(article);
+
+            return true;
+
         }
 
 

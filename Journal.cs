@@ -1,11 +1,12 @@
-﻿using CLab1;
+﻿using CLab_2;
+using CLab3;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace S1_CLab1
+namespace S1_CLab3
 {
     internal class Journal
     {
@@ -13,12 +14,9 @@ namespace S1_CLab1
 
 
 
-        public void Changed(object sender, StudentListHandlerEventArgs e)
+        public void Changed(object sender, StudentsChangedEventArgs<string> e)
         {
-            if (sender is StudentCollections)
-            {
-                JournalChange.Add(new JournalEntry(e.NameCollection, e.TypeChange, e.NameStudChange.ToString()));
-            }
+            JournalChange.Add(new JournalEntry(e.NameCollection, e.Action, e.NameStudChangeProperty, e.KeyElement));
         }
 
 

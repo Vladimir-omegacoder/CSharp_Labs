@@ -1,23 +1,36 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.Serialization.Formatters.Binary;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace CLab1
+
+
+namespace CLab3
 {
-    internal class Student : Person, IDateAndCopy
+    ///
+    [Serializable]
+    internal class Student : Person, IDateAndCopy, System.ComponentModel.INotifyPropertyChanged
     {
+
+        //Плде должности
         private Education education;
         public Education Meducation
         {
             get { return education; }
-            set { education = value; }
+            set 
+            { 
+                education = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Meducation)));
+            }
         }
 
 
+        //Поле группы
         private int group;
         public int Mgroup
         {
@@ -29,10 +42,13 @@ namespace CLab1
                     throw new ArgumentOutOfRangeException("Error. Group number must be >1 and <100");
                 }
                 group = value;
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Mgroup)));
             }
         }
 
 
+        //Списое экзаменов
         private List<Exam> Exams;
         public List<Exam> MExam
         {
@@ -41,12 +57,23 @@ namespace CLab1
         }
 
 
+        //Список тестов
         private List<Test> Tests;
         public List<Test> MTest
         {
             get { return Tests; }
             set { Tests = value; }
         }
+
+
+
+
+
+        /////////////////////////////////////////////
+        public event PropertyChangedEventHandler? PropertyChanged;
+        /////////////////////////////////////////////
+
+
 
 
         public Student(Person pers, Education education, int group) : base(pers.MName, pers.MSurname,
@@ -101,6 +128,7 @@ namespace CLab1
 
 
 
+        //Метод добавления экзаменоа
         public void AddExams(params Exam[] parameters)
         {
             foreach (var exam in parameters)
@@ -109,6 +137,9 @@ namespace CLab1
             }
         }
 
+
+
+        //Метод добавления тестов
         public void AddTests(params Test[] parameters)
         {
             foreach (var test in parameters)
@@ -117,6 +148,9 @@ namespace CLab1
             }
         }
 
+
+
+        //Вычесление среднего балла
         public double GPA
         {
             get
@@ -129,6 +163,14 @@ namespace CLab1
                 return gpa / Exams.Count;
             }
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -155,19 +197,176 @@ namespace CLab1
 
 
 
+
+
+
+
+
+
+
+
+        //Копирование с помощю сереализации
         public override object DeepCopy()
         {
-            Student copy = new Student(person, education, group);
-            foreach (var exam in Exams)
-            {
-                copy.Exams.Add((Exam)exam.DeepCopy());
-            }
-            foreach (var test in Tests)
-            {
-                copy.Tests.Add((Test)test.DeepCopy());
-            }
+            MemoryStream stream = new MemoryStream();
+            BinaryFormatter bf = new BinaryFormatter(); 
+
+            bf.Serialize(stream, this);
+
+            stream.Position = 0;
+
+            Student copy = (Student)bf.Deserialize(stream);
+
             return copy;
         }
+
+
+
+        //Созранение в файл с помощью сереалищации
+        public bool Save(string filename)
+        {
+            try
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+
+                using (Stream fstream = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    bf.Serialize(fstream, this);
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+
+                return false;
+            }
+
+        }
+
+
+        //Ввод из файла с помощью десереализации
+        public bool Load(string filename)
+        {
+            try
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+
+                using (Stream fstream = File.OpenRead(filename))
+                {
+                    Student st = (Student)bf.Deserialize(fstream);
+
+                    this.education = st.education;
+                    this.Mgroup = st.Mgroup;
+                    this.person = st.person;
+
+                    foreach (var exam in st.MExam)
+                    {
+                        this.MExam.Add((Exam)exam.DeepCopy());
+                    }
+                    foreach (var test in st.MTest)
+                    {
+                        this.MTest.Add((Test)test.DeepCopy());
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception)
+            {
+
+                return false;
+            }
+
+        }
+
+
+
+        //Добавление экзамена с консоли
+        public bool AddFromConsole()
+        {
+
+            try
+            {
+                Console.WriteLine("Введiть нвзву предмета, оцiтка, дата(рiк.мiсяць.число) через кому\n");
+
+                string[] tok = Console.ReadLine().Split(", ");
+
+                Exam ex = new Exam();
+
+                ex.ExamName = tok[0];
+                ex.Grade = int.Parse(tok[1]);
+
+                string[] tok_D = tok[2].Split(".");
+
+                DateTime d = new DateTime(int.Parse(tok_D[0]), int.Parse(tok_D[1]), int.Parse(tok_D[2]));
+
+                ex.ExamDate = d;
+
+                this.AddExams(ex);
+
+                return true;
+            }
+
+            catch (Exception)
+            {
+                Console.WriteLine("При введеннi даних винекла помилка");
+                return false;
+            }
+
+        }
+
+
+
+
+        public static bool Save(string filename, Student obj)
+        {
+            try
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+
+                using (Stream fstream = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    bf.Serialize(fstream, obj);
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+
+                return false;
+            }
+        }
+
+
+        public static bool Load(string filename, Student obj)
+        {
+            try
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+
+                using (Stream fstream = File.OpenRead(filename))
+                {
+                    obj = (Student)bf.Deserialize(fstream);
+                }
+
+                return true;
+            }
+
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+
+
+
+
+
+
+
+
+
 
 
 

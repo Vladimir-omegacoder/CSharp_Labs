@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CLab1
+namespace CLab3
 {
     internal class TestCollections
     {

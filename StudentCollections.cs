@@ -1,4 +1,6 @@
 ﻿
+using CLab_2;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,164 +8,201 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace CLab1
+
+namespace CLab3
 {
-    internal class StudentCollections : IComparer<Student>
+    internal class StudentCollections<TKey>
     {
-        private List<Student> CStudent;
-        public List<Student> MCStudent
+        public enum Action
         {
-            get { return CStudent; }
-            set { CStudent = value; }
+            Add,
+            Remove,
+            Property
         }
 
+
+
+#pragma warning disable CS0693
+        public delegate TKey KeySelector<TKey>(Student st);
+#pragma warning restore CS0693
+
+
+#pragma warning disable CS0693
+        public delegate void StudentsChangedHandler<TKey>(object source, StudentsChangedEventArgs<TKey> args);
+#pragma warning restore CS0693
+
+
+
+
+        //Pole (field)
         public string MNameCollection { get; set; }
 
+        private Dictionary<TKey, Student> _students;
+
+        private KeySelector<TKey> _keySelector;
 
 
-        public StudentCollections()
+
+
+        //ctor
+        public StudentCollections(KeySelector<TKey> keySelector)
         {
+            _keySelector = keySelector;
             MNameCollection = string.Empty;
-            CStudent = new List<Student>();
+            _students = new Dictionary<TKey, Student>();
         }
 
 
-        public StudentCollections(string name)
+
+        //Оброботчик для события изменения свойства
+        private void Student_change_property(object source, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            MNameCollection = name;
-            CStudent = new List<Student>();
+            StudentsChanged?.Invoke(source, new StudentsChangedEventArgs<TKey>(this.MNameCollection, Action.Property, e.PropertyName, _keySelector((Student)source)));
         }
 
 
 
-        public int Compare(Student? x, Student? y)
-        {
-            if(x is Student && y is Student)
-            {
-                if ( x is null || y is null)
-                {
-                    throw new ArgumentException("No data!");
-
-                }
-                else
-                {
-                    return x.GPA.CompareTo(y.GPA);
-                }
-            }
-
-            throw new ArgumentException("Error. Wrong type!");
-        }
 
 
+        //Add default two student
         public void AddDefaults()
         {
             int count = 2;
             for (int i = 0; i < count; i++)
             {
-                CStudent.Add(new Student());
+                Student student = new Student(new Person("Abobus_Cheshka", "Rzhaviy", new DateTime(1999, 01, 01)), Education.Nobody, i);
+                _students.Add(_keySelector(student), student);
 
-                StudentsCountChanged?.Invoke(this, new StudentListHandlerEventArgs(this.MNameCollection, "Add element", this.MCStudent.Last()));
+                student.PropertyChanged += Student_change_property;
+                StudentsChanged?.Invoke(this, new StudentsChangedEventArgs<TKey>(this.MNameCollection, Action.Add, "", _keySelector(student)));
             }
         }
 
+
+        //Add many students
         public void AddStudent(params Student[] parameters)
         {
             foreach (var student in parameters)
             {
-                CStudent.Add(student);
+                _students.Add(_keySelector(student), student);
 
-                StudentsCountChanged?.Invoke(this, new StudentListHandlerEventArgs(this.MNameCollection, "Add element", this.MCStudent.Last()));
+                student.PropertyChanged += Student_change_property;
 
+                StudentsChanged?.Invoke(this, new StudentsChangedEventArgs<TKey>(this.MNameCollection, Action.Add, "", _keySelector(student)));
             }
         }
 
 
-        public bool Remove(int j)
+
+
+        //Delete element
+        public bool Remove(Student st)
         {
 
-            try
-            {
-                Student student = CStudent[j];
-                MCStudent.RemoveAt(j);
+            TKey k = _keySelector(st);
 
-                StudentsCountChanged?.Invoke(this, new StudentListHandlerEventArgs(this.MNameCollection, "Delete element", student));
+            if (_students.ContainsKey(k))
+            {
+                _students.Remove(k);
+
+                st.PropertyChanged -= Student_change_property;
+
+                StudentsChanged?.Invoke(this, new StudentsChangedEventArgs<TKey>(this.MNameCollection, Action.Remove, "", k));
 
                 return true;
             }
 
-            catch (ArgumentOutOfRangeException)
-            { return false; }
+            return false;
 
         }
 
 
 
-        public Student this[int index]
+
+
+
+
+        //Max GPA in collection
+        public double Max_GPA
         {
-            get => MCStudent[index];
-
-            set
+            get
             {
-                MCStudent[index] = value;
+                if (_students.Count == 0)
+                {
+                    return 0;
+                }
+                else
+                {
+                    var p = from student in _students.Values select student.GPA;
+                    return p.Max();
+                }
+            }
+        }
 
-                StudentReferenceChanged?.Invoke(this, new StudentListHandlerEventArgs(this.MNameCollection, "Element changed", MCStudent[index]));
+
+        //All student with educetion == value
+        public IEnumerable<KeyValuePair<TKey, Student>> EducetionForm(Education value)
+        {
+            IEnumerable<KeyValuePair<TKey, Student>> p = from student in _students where student.Value.Meducation == value select student;
+
+            return p;
+        }
+
+
+        
+        public IEnumerable<IGrouping<Education, KeyValuePair<TKey, Student>>> GroupBy_Educetion
+        {
+            get
+            {
+                var p = _students.GroupBy(p => p.Value.Meducation);
+                return p;
             }
         }
 
 
 
+
+
+        //Vivod
         public override string ToString()
         {
             string s = "\n";
+            int i = 1;
 
-            for(int i = 0; i < CStudent.Count(); i++)
-            {
-                s += $"\n{i + 1}. {CStudent[i]}\nGPA: {CStudent[i].GPA}\n";
+            foreach (var student in _students) 
+            { 
+                s += $"\n{i}. {MNameCollection}\nKey: {student.Key}\nValue: {student.Value}\n\n"; 
             }
+
             return s;
         }
+
 
         public virtual string ToShortString()
         {
             string s = "\n";
-            for (int i = 0; i < CStudent.Count(); i++)
-            {
-                s += $"{i + 1}. {CStudent[i].ToShortString()}\n";
+            int i = 1, e = 0, t = 0;
 
-                int e = CStudent[i].MExam.Count();
-                int t = CStudent[i].MTest.Count();
+            foreach (var student in _students)
+            {
+                s += $"\n{i}. {MNameCollection}\nKey: {student.Key}\nValue: {student.Value.ToShortString()}";
+
+                e = student.Value.MExam.Count();
+                t = student.Value.MTest.Count();
 
                 s += $"Number of exams: {e}\n";
-                s += $"Number of tests: {t}\n";
+                s += $"Number of tests: {t}\n\n";
             }
+
             return s;
         }
 
 
 
 
-        public void SortSurN()
-        {
-            CStudent.Sort();
-        }
-
-        public void SortDateB()
-        {
-            CStudent.Sort(new Student());
-        }
-
-        public void SortGPA()
-        {
-            CStudent.Sort(new StudentCollections());
-        }
 
 
+        public event StudentsChangedHandler<TKey>? StudentsChanged;
 
-        public delegate void StudentListHandler(object source, StudentListHandlerEventArgs args);
-
-
-
-        public event StudentListHandler? StudentsCountChanged;
-        public event StudentListHandler? StudentReferenceChanged;
     }
 }

@@ -1,41 +1,37 @@
-﻿using System;
+﻿using CLab3;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace S1_CLab1
+namespace S1_CLab3
 {
     internal class JournalEntry
     {
-        public string NameCollection { get; set; }
+        public string NameCollection { get; set; }              //Имя изменяемой коллекции
 
-        public string NameChange { get; set; }
+        public StudentCollections<string>.Action Action { get; set; }              //Действие в коллекции
 
-        public string StudentChange { get; set; }
+        public string NameStudChangeProperty { get; set; }        //Имя изменяемого свойства элемента
+
+        public string KeyElement { get; set; }                     //Ключ удалённого или добавленного элемента
 
 
 
-        public JournalEntry()
+        public JournalEntry(string name, StudentCollections<string>.Action action, string property, string key)
         {
-            NameCollection = string.Empty;
-            NameChange = string.Empty;
-            StudentChange = string.Empty;
-        }
-
-
-        public JournalEntry(string nameCollection, string nameChange, string student)
-        {
-            NameCollection = nameCollection;
-            NameChange = nameChange;
-            StudentChange = student;
+            NameCollection = name;
+            Action = action;
+            NameStudChangeProperty = property;
+            KeyElement = key;
         }
 
 
 
         public override string ToString()
         {
-            return $"Collection name - {NameCollection} \nType of change - {NameChange} \nChange object - {StudentChange}\n";
+            return $"Collection name - {NameCollection} \nType of change - {Action} \nKey change object - {KeyElement} \nChange Property - {NameStudChangeProperty}\n\n";
         }
     }
 }
